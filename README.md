@@ -47,6 +47,8 @@ The review opens with a single verdict, such as VERIFIED or INCOMPLETE, and then
 
 We make no claim to originality. The mathematics, theorem statements and proofs are OpenAI's. We only put the OpenAI version through a predecessor of this workflow, which reorganized the presentation and expanded the explanations. [`bpl_example/README.md`](bpl_example/README.md) describes what changed.
 
+Like the OpenAI original, `bpl_example/` is distributed under the Apache License 2.0 (see [`bpl_example/LICENSE`](bpl_example/LICENSE)). The rest of this repository is under the MIT License.
+
 ## Attribution
 
 This folder is the result of iterations by Aparna Gupte (MIT) and Seyoon Ragavan (MIT) to assist with our own research. This was prepared using GPT-5.6 Sol, GPT-6 Astra, and Claude Opus 5.5.
