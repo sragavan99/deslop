@@ -1,0 +1,126 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Reorganized and expanded for pedagogy; see README.md for the pinned source and scope.
+\section{Historical context and related work}
+
+
+The complexity of probabilistic Turing machines was developed by
+Gill~\cite{Gill1977}, including measures of both time and tape usage.
+Random walks made the logarithmic-space question concrete:
+Aleliunas, Karp, Lipton, Lov\'asz and Rackoff obtained polynomial-time
+randomized algorithms for undirected connectivity and explicitly asked
+whether polynomial-time randomized logarithmic space could be simulated
+in deterministic logarithmic space~\cite{AleliunasKLLR1979}.
+Early work also studied probabilistic machines without a polynomial-time
+restriction. Borodin, Cook and Pippenger obtained a quadratic-space
+deterministic simulation in this broader setting
+\cite{BorodinCookPippenger1983}.
+The distinction between a space bound and simultaneous time and space
+bounds is essential throughout this history.
+
+Pseudorandom generators attack the problem by replacing a long sequence
+of fresh random bits with the output generated from a short seed.
+Ajtai, Koml\'os and Szemer\'edi gave early logarithmic-space
+constructions that hit small-space tests using short random
+strings~\cite{AjtaiKomlosSzemeredi1987}. Babai, Nisan and Szegedy
+subsequently obtained pseudorandom generators through multiparty
+communication bounds~\cite{BabaiNisanSzegedy1992}.
+Nisan's generator uses $O(S\log R)$ seed bits for a space-$S$
+computation reading $R$ random bits~\cite{Nisan1992}.
+For logarithmic space and polynomially many bits this gives
+$O(\log^2 n)$ seed length; direct seed enumeration has a
+quasipolynomial time bound. Nisan's later simultaneous simulation
+achieves polynomial time and $O(\log^2 n)$ space
+\cite{Nisan1994RLinSC}. Although its title uses $\mathrm{RL}$,
+that result includes two-sided bounded error.
+For $S(n)\ge\log n$, Nisan and Zuckerman showed that a space-$S$
+computation using $\operatorname{poly}(S)$ random bits can be simulated
+using only $O(S)$ random bits and $O(S)$ space~\cite{NisanZuckerman1996}.
+The restriction on the original number of random bits is substantive;
+for logarithmic space it permits polylogarithmically many bits.
+
+Saks and Zhou reduced the deterministic space needed for general
+bounded-error logarithmic-space computation to
+$O(\log^{3/2}n)$~\cite{SaksZhou1999}.
+Cai, Chakaravarthy and van Melkebeek established a simultaneous
+tradeoff: for each fixed rational $0\le\alpha\le1/2$, the simulation
+uses time $n^{O(\log^{1/2-\alpha}n)}$ and space
+$O(\log^{3/2+\alpha}n)$
+\cite{CaiChakaravarthyVanMelkebeek2006}.
+The polynomial-time endpoint has squared-logarithmic space.
+Hoza subsequently improved the general space bound to
+$O(\log^{3/2}n/\sqrt{\log\log n})$
+\cite[Theorem~1.6 and Corollary~A.5]{Hoza2021}.
+These smaller space containments do not assert the same polynomial-time
+endpoint. Hoza's work also develops weighted pseudorandomness, in which
+signed or real weights replace an ordinary probability distribution;
+the space-containment improvement and the new weighted-generator
+construction are distinct results of that paper.
+
+Acceptance-probability estimation also connects derandomization to
+stochastic matrix products and inverses. Ahmadinejad, Kelner, Murtagh,
+Peebles, Sidford and Vadhan developed high-precision small-space
+algorithms for random-walk probabilities, with stronger bounds for
+Eulerian graphs~\cite{AhmadinejadKelnerMurtaghPeeblesSidfordVadhan2020}.
+Cohen, Doron, Sberlo and Ta-Shma later used varying precision across
+recursion to improve the space complexity of long stochastic matrix
+products~\cite{CohenDoronSberloTaShma2023}. The construction in these notes works with a finite inverse on a time-layered configuration graph;
+its correction and copy hierarchy controls the information retained
+while individual entries are evaluated.
+
+Structural restrictions on a computation provide another route.
+For undirected connectivity, Nisan, Szemer\'edi and Wigderson obtained
+deterministic space $O(\log^{3/2}n)$~\cite{NisanSzemerediWigderson1992},
+subsequently improved to $O(\log^{4/3}n)$ by Armoni, Ta-Shma,
+Wigderson and Zhou~\cite{ArmoniTaShmaWigdersonZhou2000}.
+Reingold's logarithmic-space algorithm, whose conference version
+appeared at STOC 2005, settles undirected connectivity~\cite{Reingold2005,Reingold2008}.
+Reingold, Trevisan and Vadhan studied regular directed graphs and gave
+logarithmic-space path search for Eulerian directed graphs
+\cite{RTV2006}. Their oblivious walk constructions impose additional
+labeling conditions. General directed configuration graphs need not
+have these properties, so those results did not settle the unrestricted
+randomized computation problem.
+A read-once branching program is a layered deterministic computation
+that reads the input symbols once in a fixed order (bits in the binary
+case). Its length is the number of steps,
+and its width is the largest number of states in a layer.
+A $1/2$-hitting set for a class of programs contains an accepting input
+for every member that accepts at least half of all input strings.
+The relation between one-sided and two-sided derandomization also
+requires care. Cheng and Hoza proved that one uniformly logarithmic-space-enumerable
+$1/2$-hitting-set family for all width-$n$, length-$n$ read-once branching
+programs would yield
+$\mathsf L=\mathsf{BPL}$~\cite{ChengHoza2022}.
+The premise is a hitting-set construction; it is not merely the
+language-class equality $\mathsf{RL}=\mathsf L$.
+
+Recent results refine both general and structured models.
+Chen, Cohen, Doron, Khaskelberg and Ta-Shma improve error reduction for
+weighted generators; in the polynomial-width regime their construction
+has seed length $\log|\Sigma|+O(\log^2 T+\log(1/\delta))$, where
+$T$ is branching-program length, $\Sigma$ its alphabet and $\delta$
+the error~\cite{ChenCohenDoronKhaskelbergTaShma2026}.
+Cheng and Wu obtain simultaneous polynomial-time and polylogarithmic-space
+simulations for regular branching programs, with extensions to polynomial-time
+randomized logarithmic-space machines whose two-way read-only random tape
+visits each cell at most constantly often, and to such machines with read-once randomness
+and an auxiliary stack whose push, pop and idle schedule is independent
+of the random bits. Consecutive stays on a random-tape cell count as one
+visit~\cite[Theorems~5--6]{ChengWu2026SC}.
+Hardness-versus-randomness approaches additionally give conditional,
+certified and per-instance alternatives; Pyne and Tell survey this
+line of work~\cite{PyneTell2026}.
+
+Effectivity has its own substantial antecedents.
+Pyne, Raz and Zhan construct a universal deterministic estimator whose
+$O(S(n))$ space guarantee follows from
+$\mathsf{prBPL}\subseteq\mathsf{SPACE}[O(S(n))]$, for
+space-constructible $S(n)\ge\log n$
+\cite[full version, Theorem~5.1]{PyneRazZhan2023}.
+Here $\mathsf{prBPL}$ denotes promise problems solvable in polynomial
+time and randomized logarithmic space with bounded error.
+The compiler in Appendix~\ref{sec:compiler} uses the fixed separator established by the preceding construction
+and supplies explicit source-specific numerical resource bounds.
+Its construction should be read in this context of universal
+simulation, with the source bounds supplied as part of the compiler input.
+

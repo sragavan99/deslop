@@ -1,0 +1,303 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Reorganized and expanded for pedagogy; see README.md for the pinned source and scope.
+\section{Computing numerical values one digit at a time}
+\label{sec:arith}
+
+We have defined the estimator as a mathematical function of a finite random environment. Its values involve arithmetic, conditional averages, clipping, and order statistics. This section explains how finite numerical queries evaluate those values without keeping a long approximation in every caller.
+
+There are two notions of accuracy. The statistical budget determines which estimator value is being computed. The numerical digit place determines how accurately that fixed value is read. Increasing the latter does not improve the former, and it must not change the list or port choices that define the estimator. We therefore give each fixed task value an exact signed-digit representation and implement a request for any one digit by a terminating finite calculation.
+
+Why return one digit at a time? If a multiplication first computed and saved a whole approximation to its left operand, that word would remain live while the right operand made recursive calls. A digit interface lets the arithmetic circuit request only the bounded pieces it needs and recompute them when necessary.
+
+A query returns one bounded digit.  During its evaluation, the space
+needed by a suspended caller must be bounded by the size of its
+structural descriptors and a constant times the decrease from its
+output clock to the requested operand clock.  An operand clock may
+exceed the output clock by an amount proportional to descriptor size;
+the structural term also pays for this overshoot.  These differences
+will telescope when arithmetic queries are nested inside graph procedures.
+Thus the relevant question is which data remain live at each operand request.
+
+\subsection{Exact values from bounded signed digits}
+
+We use integer clocks $t,j\geq 0$.  Known binary scales are separated
+from numerical values, so a normalized value belongs to $[-1,1]$.
+The fixed digit alphabet is
+\[
+ \mathcal A=\{-6,-5,\ldots,5,6\}.
+\]
+Every digit is encoded by a fixed number of bits.  An operand stream
+$(x_j)_{j\geq0}$ denotes the exact real number
+\begin{equation}
+ x=\sum_{j\geq0}x_j2^{-j},\qquad x_j\in\mathcal A.
+ \label{eq:arith-stream}
+\end{equation}
+In particular, for its truncation $x^{[K]}=\sum_{j=0}^Kx_j2^{-j}$,
+\begin{equation}
+ |x-x^{[K]}|\leq 6\,2^{-K}.
+ \label{eq:arith-tail}
+\end{equation}
+The stream need not be a usual binary expansion, and no uniqueness
+of the expansion is required.
+Redundant signed-digit representations have a long history in
+arithmetic~\cite{Avizienis1963}.  The redundancy lets consecutive
+finite approximations define an exact stream even when they use
+different truncations.
+
+An arithmetic root has public parameters, its clock, and a description
+of its operand interfaces.  We require these parameters to be
+regenerable from the outer controller records without operand or graph
+queries.  They are fixed inputs to each numerical computation; their
+full binary encodings are not copied at every gate.  An operand label
+specifies its interface and descriptor; it never specifies an unknown
+vertex address from a previous cursor position.
+
+A finite approximation at place $t$ need not extend the approximation obtained at place $t-1$. Rather than enforce matching binary prefixes, take their scaled difference as the next signed digit. The resulting partial sums telescope to the exact value. The error bound keeps each difference in a fixed finite alphabet, so only a fixed number of residue bits is needed to recover it.
+
+\begin{lemma}[Exact streams from approximation residues]
+\label{lem:arith-residue-stream}
+Suppose $|z|\leq1$ and, for each $t\geq0$, a deterministic integer
+$N_t(z)$ satisfies
+\begin{equation}
+ |N_t(z)-2^tz|<2.
+ \label{eq:arith-approximation}
+\end{equation}
+Set
+\begin{equation}
+ z_0=N_0(z),\qquad z_t=N_t(z)-2N_{t-1}(z)\quad(t\geq1).
+ \label{eq:arith-difference-digit}
+\end{equation}
+Then $z_t\in\mathcal A$ and these digits represent $z$ exactly.
+For any fixed integer $q\geq4$, each output digit is determined by
+the required $N_t$ residues modulo $2^q$.
+\end{lemma}
+
+\begin{proof}
+There are three things to check: the digits remain bounded, their weighted sum has the correct limit, and their residues determine them uniquely. Writing $e_t=N_t-2^tz$ gives
+$z_t=e_t-2e_{t-1}$ for $t>0$, hence $|z_t|<6$; the weaker alphabet
+bound $|z_t|\leq6$ is convenient throughout.  At place zero,
+$|N_0|<3$, so $|N_0|\leq2$.  The partial sum through place $T$ is
+$2^{-T}N_T$, which tends to $z$ by Equation~\eqref{eq:arith-approximation}.
+Finally, reduction modulo $2^q$ is injective on the possible signed
+digits because $2^q>12$.  Thus the signed difference can be recovered
+from the two residues without forming the full integers $N_t$.
+Concretely, for $t>0$ compute
+$(N_t\bmod 2^q)-2(N_{t-1}\bmod 2^q)$ modulo $2^q$, then use the
+fixed finite table which sends each occurring residue to its unique
+representative in $\mathcal A$.  At $t=0$, decode the residue of
+$N_0$ in the same way.  This final decoding has constant storage and
+introduces no comparison of unknown exact real numbers.
+\end{proof}
+
+The integer $N_t$ is always defined before taking its residue.
+Different places may use different truncations or finite circuits.
+Only determinism and Equation~\eqref{eq:arith-approximation} are
+required; consistency between the finite approximations is supplied
+by Equation~\eqref{eq:arith-difference-digit}.  In particular, when a
+digit at $t$ uses $N_{t-1}$, the latter is evaluated by its own
+place-$(t-1)$ definition.
+
+We compute the required residues by finite Boolean circuits.  To bound
+what survives an operand query, we evaluate those circuits from paths
+of child choices and regenerate their absolute addresses as needed.
+Here $d\geq1$ measures the size of the immediate structural descriptors;
+in the application it is the current group's slack.
+
+The local record of a suspended numerical query contains every local bit
+that must be retained across an operand query: its binary gate path,
+return modes, pending bounded results, stored descriptor choices, and
+any explicitly specified retained word.  The input and master choice,
+the common vertex cursor, and one reusable scratch area are shared
+facilities.  Temporary gate addresses, digit places and scan counters
+may occupy scratch while they are being computed.  Any such data needed
+after a recursive graph query must either be in the charged local
+record or be reconstructible from the root parameters and that record.
+An operand-dependent word retained across the query is charged even if
+it was originally formed in scratch.
+
+In particular, reconstructing an absolute digit place may use a binary
+counter in scratch, while the suspended record stores only the choices
+needed to recover that place.  The next lemma makes this distinction
+precise for the finite circuits used below.
+
+A second source of excess memory is saving an absolute circuit-gate address at every level. Instead, retain the finite choices along the route from the output gate. The absolute address of the current gate can be regenerated in shared scratch from that route. This trades recomputation for a smaller retained record.
+
+\begin{lemma}[Evaluation from regenerated gate addresses]
+\label{lem:arith-gate-evaluation}
+Consider a finite Boolean circuit of bounded fan-in, with a specified
+output gate.  Conditional gates may evaluate their selector first and
+then only their selected branch.  Suppose the type and immediate predecessors of a gate,
+or its operand label and digit place if it is an input gate, can be
+computed from the root parameters and a path of child choices from
+the output gate.  Suppose these computations use $O(B+t+d)$ scratch
+bits and make no operand or graph queries.  Then depth-first
+evaluation retains $O(1)$ bits per gate on its current path, and
+requires no saved absolute gate address per gate.  Its suspended
+record above an operand input has length at most a constant times
+the length of that path, plus any explicitly retained root-local
+record.
+\end{lemma}
+
+\begin{proof}
+At a gate, save its next-child or return mode and the already computed
+Boolean input, if any.  At a conditional gate also save the selected
+branch bit.  The bounded fan-in makes this a constant-size
+record.  To locate the next child, scan the saved path from its root
+and regenerate successive gate descriptions in scratch.  The final
+description determines the next child choice.  On return, its Boolean
+result is combined with the saved bit and the local record is popped.
+All temporary addresses and scan counters are discarded before an
+operand query; a later scan recreates them from the same root and
+saved choices.  Circuit acyclicity gives termination.  This is an
+evaluation of the circuit unfolded into a formula; repeated gates are
+recomputed, so no array of previously computed values is stored.
+\end{proof}
+
+
+The next theorem states exactly what the graph computation will need from arithmetic. The elementary operations, multiplication, reciprocals, and indexed reductions are proved in the appendix. Their proofs track what remains stored at a recursive operand request; a bound on temporary arithmetic workspace alone would not be enough.
+
+\subsection{The numerical interface}
+
+
+We state the composition result with its syntactic hypotheses.
+They concern finite arithmetic recipes and do not assert any
+property of the underlying graph operations.
+
+Application to graph procedures requires a separate certificate.  The
+semantic descriptor domains and structural validity conventions are
+fixed independently of the requested numerical clock; selected operands
+already have defined digit interfaces; reciprocal arguments lie in the
+stipulated positive intervals; and root parameters remain recoverable
+after lower calls.  Clock-dependent truncations and comparison circuits
+may change $N_t$, but not its target recipe value.
+Lemmas~\ref{lem:ctrl-recipes} and~\ref{lem:ctrl-replay} verify these
+conditions for the estimator procedures.  An incoming rank over the
+whole vertex universe has no prescribed $2^{O(d)}$ descriptor bound and
+uses the separate construction of Lemma~\ref{lem:ctrl-score-rank}.
+
+\begin{theorem}[Uniform numerical interface]
+\label{thm:arith-interface}
+Fix the digit alphabet, positive reciprocal intervals, and
+constants bounding the following recipe class.  A recipe at
+slack $d\geq1$ has a fixed number of stages built from bounded
+arithmetic operations, fixed piecewise formulas using maxima,
+minima and clipping, the reciprocals of
+Lemma~\ref{lem:arith-reciprocal}, indexed ranks as in
+Lemma~\ref{lem:arith-rank}, and sums and known scales as in
+Lemma~\ref{lem:arith-sums-scales}.  The stage and descriptor
+descriptions are generated from the root parameters by index
+computations using $O(B+d+t)$ scratch and no operand queries, and the
+total non-reduction dependency depth is bounded independently
+of $d$.  Each indexed domain has size $2^{O(d)}$ and descriptors
+of length $O(d)$.  Discrete domain and validity decisions are
+structural leaves or buffered tests with their own fixed
+precision conventions.  Public coefficient leaves have exact
+normalized digit procedures using $O(B+d+t)$ shared scratch
+and making no operand or recursive graph queries.
+
+Then each normalized recipe value has a deterministic exact
+$\mathcal A$-stream.  For its digit at clock $t$ there are uniform
+constants $a,b,c$ such that every requested operand digit $j$
+satisfies
+\begin{equation}
+ j\leq t+cd,\qquad
+ \text{total suspended local binary record length}
+       \leq ad+b(t-j).
+ \label{eq:arith-export}
+\end{equation}
+An output code bit satisfies the same bounds.  A structural leaf
+is requested at clock zero and has suspended local length at
+most $ad+bt$.  The maximum intrinsic local record length is
+$O(d+t)$.
+
+All gate, digit and descriptor addresses can be regenerated from
+root parameters and the saved local records using
+$O(B+d+t)$ shared scratch and no recursive graph calls.  When
+$d,t=O(B)$ this is $O(B)$ scratch.  If a public rational
+coefficient has $O(B)$-bit numerator and denominator that can
+be generated in $O(B)$ scratch, its queried digits in this clock
+range also require only that shared $O(B)$ scratch.
+\end{theorem}
+
+\begin{proof}
+The primitive constructions in the appendix define deterministic integers $N_t$.
+Lemma~\ref{lem:arith-residue-stream}
+turns them into exact streams.  When composing primitives,
+their operands are these exact streams; numerical approximation
+errors are not accumulated along the recipe as if they were
+statistical errors.  Instead, each primitive's deterministic
+$N_t$ is an approximation to its own exact mathematical value.
+The construction uses only residues of $N_t$ and $N_{t-1}$ and
+a constant number of output code bits, which adds fixed
+overshoot and fixed local overhead.
+
+For the record bound, choose one common positive clock
+coefficient $b$ for the finite primitive and stage types.  In any
+bound $L\leq a_0d+b_0(t-j)$ with $j-t\leq c_0d$, replacing
+$b_0$ by $b\geq b_0$ is justified by replacing $a_0$ by
+$a_0+(b-b_0)c_0$.  Thus the same $b$ can be used everywhere.
+There are a bounded number of stages, each with overhead $O(d)$;
+within a balanced reduction the elementary overheads have total
+$O(d)$ by Lemma~\ref{lem:arith-sums-scales}.  Along any path
+the intermediate clock differences telescope, giving
+Equation~\eqref{eq:arith-export} and total overshoot $O(d)$.
+The same sum, terminated at an internal arithmetic operation
+rather than an operand call, gives the intrinsic bound explicitly
+as follows.  If that operation has current clock $u$, its own
+intrinsic record has length at most $C(d+u)$, while the outer
+saved portion has length at most $A d+b(t-u)$.  Choose the
+common $b$ also to satisfy $b\geq C$.  Their sum is then at most
+$(A+C)d+bt$, because $u\geq0$.  Increasing the stage constants
+as above makes this same choice of $b$ valid in all local bounds.
+The early-word case is already included in
+Lemma~\ref{lem:arith-reciprocal}: those retained bits are part of
+the local record and are paid for at the actual original-input
+clock by Equation~\eqref{eq:arith-early-word-payment}.
+
+Structural validity branches are finite branches in this circuit
+organization, with length at most its full intrinsic bound.
+They ask the structural operand at clock zero.  Buffered tests
+are separate recipes with structural starting clock zero and
+precision fixed by Lemma~\ref{lem:arith-buffered-test}; they are
+not altered when a surrounding value is requested more accurately.
+Thus no discontinuous comparison of exact reals at unbounded
+precision is part of the interface.
+
+All circuit constructions in the appendix use padded domains and explicit index rules.  A saved gate choice selects an operand, a subtree,
+a bit of a known-width word, or one of the finite primitive modes.
+Scanning these choices from the root recovers the current
+descriptor and digit places by integer arithmetic.  The
+reciprocal's extra records additionally specify its early-prefix
+formation state.  None of these computations refers to an
+ancestor cursor address or requires an operand value to discover
+the next gate.  Their integers have $O(B+d+t)$ bits; repeated
+scans reuse one scratch area.  Lemma~\ref{lem:arith-gate-evaluation}
+therefore applies at every Boolean portion of the recipe.
+
+Finally, for a public coefficient $P/Q$, $Q>0$, producing a
+place-$r$ approximation uses integer division of $2^rP$ by $Q$,
+with signed floors when needed.  The inputs and intermediate
+remainders have $O(B+r)$ bits.  Standard finite binary division
+and multiplication use that much space, and extracting the
+low residue or difference digit requires no larger word.
+All operand bits in this computation are public, so it makes no
+recursive graph call and can use shared scratch throughout.
+For $r=O(B)$ its scratch bound is $O(B)$.  In contrast, any word
+whose bits depend on recursive operands and must survive a new
+operand request has already been charged to the local record.
+\end{proof}
+
+\begin{remark}[Use of clocks]
+\label{rem:arith-clocks}
+Theorem~\ref{thm:arith-interface} is a finite-request statement
+for every $t$.  Its exact-stream conclusion follows by considering
+these finite requests separately, and does not require a machine
+to choose structural domains or port orders at infinite precision.
+For the actual top-level computation all reached clocks will be
+$O(B)$ by the allowance calculation in the next section.  Known
+rate and field coefficients have $O(B)$-bit descriptions, and a
+fixed rational generator probability raised to a walk length
+$O(d)$ has numerator and denominator of $O(d)$ bits; these are
+instances of the public-coefficient provision above.
+\end{remark}
+

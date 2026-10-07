@@ -1,0 +1,50 @@
+% New pedagogical description of the existing estimator; October 7, 2026.
+% Original mathematics: OpenAI, September 23, 2026. See README.md.
+\section{The estimator: what is queried and what is returned}
+\label{sec:estimator-description}
+
+The hierarchy gives an exact reward, but its formulas involve matrices and expectations too large to materialize. The next several sections define a recursive estimator for individual entries and give its error analysis. Before proving the components separately, we describe how a query uses them. This description assembles the construction proved below; the formulas and their parameter choices remain in the referenced sections.
+
+\subsection{One mathematical table, several ways to query it}
+
+A task identifies the quantity being estimated: a bin of a transition matrix, a correction, a detector score, a normalization denominator, or a reward. Its parameters specify the stage, iteration, sampling rates, channel roles, inherited copy suffixes, and statistical budget $M$. Those parameters and the shared environment define one table or vector. The source and destination vertices are arguments to a table query. They are not extra hidden parameters that change when the same entry is found by another path.
+
+There are two kinds of output. A value query asks for a numerical entry. An access query asks which entries can be visited, or for a paired port that moves to an adjacent vertex and permits return. The access relation can include zero-weight entries, but it must contain every nonzero contribution used in the calculation and satisfy the proved degree bounds. Its finite-accuracy selection rules are fixed as part of the task, independently of how accurately a later value query is answered.
+
+This distinction prevents a possible circularity. Increasing numerical precision must not change the graph on which the algorithm is already navigating. A task's exact estimator value is defined first; numerical digit queries then evaluate that fixed value. The implementation of these queries is postponed to Sections~\ref{sec:arith}--\ref{sec:ctrl}.
+
+\subsection{The order in which quantities are defined}
+
+At a fixed stage, first define the bins representing $C_l$. At each pilot iteration, define its raw scores, the detector vector $U_i$, and then its correction. After the pilot has fixed the multiplier, define the actual corrections in iteration order. The residual bins and reward update follow. Place the unnormalized preparatory task immediately before each normalized task that uses its mean as a denominator.
+
+There is also an order within one row task. Its earlier dependencies determine its raw arrays. Complete those arrays before forming the row functions and auxiliary scores. Form an incoming gate from those completed scores. Only then multiply by a column multiplier or impose the incoming access cap. Thus a gate does not call itself to decide which entries exist.
+
+The budget and this dependency order play different roles. The dependency order says which mathematical objects have already been defined. The budget specifies how accurate their estimates are and limits how much work can be passed to a child. The precision assignment in Equation~\eqref{eq:est-precision} combines the budget, task rank, and sampling rates. If the assigned precision is nonpositive, the task is inactive and returns zero values with empty access classes. Boundedness of the true outputs makes this an admissible low-accuracy answer.
+
+\subsection{A row query, step by step}
+
+For an active row task, the following is the order of evaluation. All lists and arrays in this description are defined implicitly; the algorithm accesses their entries by recomputation.
+
+\begin{enumerate}[leftmargin=*]
+\item \emph{Write the required raw signal as sample terms.} The formulas in Equations~\eqref{eq:est-direct}--\eqref{eq:est-reward} give direct entries, correction products, copy projections, and vector updates. The first row signal is measured in units of its scale $a$. A normalized task also has a second signal obtained from its preparatory conditional mean. The factors involving actual retention probabilities correct the relevant changes of conditioning.
+
+\item \emph{Use successive child budgets.} Replace earlier inputs by their estimates at budget $m$, and subtract the same sample expression at budget $m-1$. For a term at scale $b$, include only $1\le m\le M-c_b$. Average the difference by a conditional walk of length $\ell(M-m)$. Its two parts use the same generator word and guessed wraps. This pairing is necessary for the small-difference bound.
+
+\item \emph{Process comparable budget differences together.} Group terms with $d\le M-m<2d$, in decreasing dyadic values of $d$. Include exact base contributions in the first group. A candidate in such a group has an $O(d)$-bit description and calls only children of budget at most $M-d$. Its description identifies the formula, scale, budget, averaging path, sign, and constituent ports.
+
+\item \emph{Combine new increments at the appropriate destinations.} Validate each candidate separately, including its wrap tests. The budget-block width $h_*$ is specified in Equation~\eqref{eq:fp-blocks}. For $d>2h_*$ use exact vertex equality. For $d\le2h_*$ use the current block's fingerprint key. Sum the new increments with a common key. Add their sum to every old representative with that key; if there is no old representative, introduce the first valid new candidate. Old stored values are never added together merely because their keys agree. Section~\ref{sec:fp-blocks} specifies this rule and analyzes its collisions.
+
+\item \emph{Compress and bound the row after each group.} Apply the threshold update of Section~\ref{sec:buf-compression}, followed by its range clamps and shortlist rule. The represented row consists of a default and finitely many exceptions. The capacity depends on $d$, and the update is continuous in the numerical input values even though different calculations can select different presentations of their exceptions.
+
+\item \emph{Assemble the output from the completed row.} After the last group, apply the row functions, preparatory normalizations, auxiliary scores, incoming gates, and column multipliers in the order above. The separate column-vector calls have the specified smaller budget. This produces the row values and their access relation.
+\end{enumerate}
+
+A vector task uses the same successive-budget averaging schedule for scalar contributions, with the prescribed range bounds and final clipping. It does not require destination grouping or row-list compression. A reward query at the final primary start is one such vector task.
+
+\subsection{The guarantees proved in the next sections}
+
+The construction is established in a definite sequence. Section~\ref{sec:atom} proves the sparse-table identities and access bounds, including bounds valid on inaccurate computed inputs. Section~\ref{sec:averaging} supplies the conditional walk and its short path descriptions. Section~\ref{sec:est} bounds the mean error and averaging noise before compression. Section~\ref{sec:buf-compression} shows that compression preserves enough accuracy when equal destinations are grouped exactly. Section~\ref{sec:fp-blocks} then proves the coupled error bound for the actual fingerprint-based calculation.
+
+The exact-grouping calculation used in the last two steps is an analytical comparison, not a claim that exact identifiers can be stored at every small-budget call. It helps isolate the extra error caused by fingerprints. Both calculations still use the same compression and numerical range conventions.
+
+The final accuracy theorem is Theorem~\ref{thm:fp-estimators}. The separate implementation theorem is Theorem~\ref{thm:ctrl-realization}. The former says how often the estimator is accurate; the latter bounds memory and proves termination for every environment. The median construction needs both guarantees, so the proof never substitutes one for the other.

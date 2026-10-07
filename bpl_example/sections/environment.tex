@@ -1,0 +1,105 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Prose revised and explanations expanded; see README.md for the source and scope.
+\section{Sampling vertex subsets with a short description}\label{sec:env}
+
+The detector needs to sample rows and columns without writing down a random bit for every vertex. We therefore describe an entire random subset by a small collection of polynomial coefficients. Given the coefficients and one vertex identifier, membership can be tested on demand.
+
+The later proof needs more than the marginal probability of membership. It must remain possible to sample other vertices after requiring the queried vertex to be present. It must also detect a large deterministic set by the number of sampled members, and reuse the construction after appending copy digits to every identifier. Lemma~\ref{lem:env-ranks} states these four requirements together. The particular conditioning on coefficient rank below is what permits the conditional averaging construction of Section~\ref{sec:averaging}.
+
+The environment consists of the independent rank channels below together
+with a finite string of independent uniform auxiliary bits.  The length
+and uses of that string will be specified when needed.
+
+One independently chosen collection of coefficients is called a channel. We use a fixed number of independent rank channels, including channels denoted $X,Y,Z$. Extra channels, when needed, are also a fixed finite
+number. A channel is a uniformly random matrix
+\[
+A=(a_0,F)\in\mathbb F_P^{H\times h_0}
+\]
+conditioned on the last $r=h_0-1$ columns $F$ being linearly
+independent. We call such an ordered collection of columns a \emph{frame}.
+The integer $P$ is prime. It is chosen larger than every
+identifier and sufficiently large for all rate comparisons below.
+For a numerical identifier $y$, set
+\[
+v(y)=(1,y,\ldots,y^{h_0-1})^{\mathsf T},
+\qquad a(y)=Av(y)\in\mathbb F_P^H.
+\]
+Field elements in a retention test use their representatives in
+$\{0,\ldots,P-1\}$. At nominal rate $b_k$, let
+\[
+L_k=\lceil P2^{-k}\rceil,\qquad
+\pi_{b_k}=(L_k/P)^H.
+\]
+Evaluate the same polynomial array at each identifier. The identifier is retained if all coordinates of $a(y)$ lie in
+$\{0,\ldots,L_k-1\}$. Write $X_a(y)$ for the indicator on channel
+$X$ at rate $a$, and similarly for other channels.
+The same notation permits a specified fixed suffix in the channel
+argument. Retention boxes are nested.
+All rates in this section belong to the grid $b_k=2^{-Hk}$, and the
+admissible range satisfies $P2^{-k}\ge1$. The choices of $H,h_0$ and
+the identifier range are those of Section~\ref{sec:model}.
+
+\begin{lemma}[Rank-channel estimates]\label{lem:env-ranks}
+There are positive constants $c_\pi,C_\pi,C_{\rm pair},C_{\rm var}$,
+depending only on $H,h_0$, with the following properties in every
+admissible finite range.
+\begin{enumerate}
+\item A specified identifier is retained at rate $a$ with probability
+$\pi_a$, where $c_\pi a\le\pi_a\le C_\pi a$.
+\item For distinct identifiers $x,y$ and any admissible rates $u,a$,
+\[
+\Pr\{X_a(y)=1\mid X_u(x)=1\}\le C_{\rm pair}a.
+\]
+\item If $A_0$ is a deterministic set of $q$ distinct identifiers and
+$T_a=\sum_{y\in A_0}X_a(y)$, then
+\[
+\Pr\{T_a<q\pi_a/2\}\le \frac{C_{\rm var}}{q\pi_a}
+\quad(q>0).
+\]
+\item Replacing every channel argument $y$ by the same injective affine
+map $\alpha y+\beta$ leaves the joint law of all evaluations unchanged,
+provided $\alpha\ne0$ in $\mathbb F_P$. In particular, a common fixed
+padding suffix leaves their law unchanged.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+We first compare the conditioned sampling rule with unrestricted polynomial coefficients. The rank condition has probability bounded below by an absolute positive constant:
+\par
+The probability that an unrestricted $H$-by-$r$ matrix is a frame is
+\[
+q_{\rm fr}=\prod_{j=0}^{r-1}(1-P^{j-H})\ge c_{\rm fr}>0.
+\]
+For fixed positive-degree coefficients, $a_0$ is uniform, so any one
+evaluation is uniform in $\mathbb F_P^H$ and independent of frame
+success. This proves the exact marginal retention probability.
+In the ranges used, take $P2^{-k}\ge1$. Then
+$P2^{-k}\le L_k\le2P2^{-k}$, proving comparability. The prime
+exponent can in fact make all these sides much larger than one.
+
+For the conditional-pair bound, full independence after rank conditioning is unnecessary. We can first use independence in the unrestricted distribution and then pay for conditioning by the reciprocal of its probability. Without conditioning on a frame, two evaluations at distinct field
+points are independent uniform vectors: the two evaluation functionals
+have rank two since $h_0\ge2$. Consequently
+\[
+\Pr\{X_a(y)=1,X_u(x)=1\mid F\text{ is a frame}\}
+\le \frac{\pi_a\pi_u}{q_{\rm fr}}.
+\]
+The first marginal after conditioning is still $\pi_u$, which proves
+the second assertion.
+
+The count estimate uses the same comparison. For the third assertion, in the unrestricted distribution the hit count
+has mean $q\pi_a$ and variance at most $q\pi_a$, by pairwise
+independence. Chebyshev's inequality bounds the stated lower-tail event
+by $4/(q\pi_a)$. Conditioning on frame success increases this probability
+by at most $1/q_{\rm fr}$.
+
+It remains to justify reuse after copying vertices. Finally, substituting $\alpha y+\beta$ in a polynomial acts on its
+positive-degree coefficient columns by an invertible triangular
+matrix, with diagonal $\alpha,\ldots,\alpha^{h_0-1}$.
+It therefore preserves the frame condition. Its action on the full
+coefficient array is an invertible linear change of variables, so it
+preserves uniform measure conditional on that condition. Appending
+digits in radix $D_0$ has $\alpha$ a power of $D_0$; taking
+$P>D_0$ ensures the required invertibility.
+\end{proof}
+

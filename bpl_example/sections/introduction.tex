@@ -1,0 +1,75 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Reorganized and expanded for pedagogy; see README.md for the pinned source and scope.
+\section{The problem and the results}\label{sec:intro}
+
+A logarithmic-space machine can remember a bounded number of positions
+in its input, but cannot keep a polynomial-length computation or random
+tape. Can fresh random bits increase what such a machine can decide?
+We answer this question by giving a deterministic logarithmic-space
+simulation of every polynomial-time randomized logarithmic-space
+computation with bounded error.
+
+The difficulty is simultaneous control of time and memory. A deterministic simulation may revisit earlier work, but it cannot save a long random tape or a table containing one probability for every configuration. The construction in this paper instead estimates acceptance probabilities by repeatedly recomputing small pieces of information. Its analysis must establish both that these estimates are accurate and that all information retained during recomputation fits in logarithmic space.
+
+Throughout, $n$ is the input length and logarithms have base two. Randomized running-time bounds hold on every random tape. The complete machine conventions are given in Section~\ref{sec:model}.
+
+The class $\Lclass$ consists of languages decidable by deterministic
+machines in $O(\log(n+2))$ work space. Such a halting deterministic
+machine has only polynomially many configurations and hence runs in
+polynomial time. The class $\RL$ permits
+polynomial-time randomized machines in this space, with acceptance
+probability zero on no inputs and at least $1/2$ on yes inputs.
+For $\BPL$, the corresponding probabilities are at most $1/3$ and at
+least $2/3$.
+
+\begin{theorem}[Exact logarithmic-space derandomization]\label{thm:main}
+\[
+                 \Lclass=\RL=\BPL.
+\]
+\end{theorem}
+
+The statement follows from a more informative approximation result. We estimate the acceptance probability even when it lies between the usual acceptance and rejection thresholds. This separates the numerical task from the final decision: after obtaining an approximation, a bounded-error computation is decided by comparison with $1/2$. The next theorem also makes explicit how a request for greater accuracy changes the resources.
+
+\begin{theorem}[Acceptance-probability approximation]\label{thm:probability}
+Fix a randomized machine $\mathcal M$ with polynomial worst-case
+running time and $O(\log(n+2))$ work space. Let $p_{\mathcal M}(x)$ be
+its acceptance probability on an input $x$ of length $n$. There is a
+uniform deterministic algorithm which, on input $(x,1^q)$ with $q\ge1$,
+outputs an integer $0\le a\le2^{q+2}$ satisfying
+\[
+       \left|a2^{-(q+2)}-p_{\mathcal M}(x)\right|\le2^{-q}.
+\]
+It uses $O(\log(n+2)+q)$ work space and
+$(n+2)^{O(1)}2^{O(q)}$ time. The constants depend only on $\mathcal M$.
+\end{theorem}
+
+In particular, every fixed inverse-polynomial accuracy is attained in
+logarithmic space and polynomial time. The precision parameter is unary;
+the running-time bound is exponential in general $q$. We first prove
+the fixed inverse-polynomial result and then obtain the single
+variable-precision algorithm by padding. Section~\ref{sec:conclusion}
+also derives total deterministic separators for bounded-error promise
+problems and constructs accepting runs when the machine's acceptance
+probability has a specified inverse-polynomial lower bound.
+
+The simulation is also effective at the level of machine descriptions.
+Given a source program and supplied polynomial-time and logarithmic-space
+bounds, one terminating compiler produces a deterministic decider and
+explicit numerical bounds for its space and time
+(Theorem~\ref{thm:effective-simulation}). The supplied bounds are
+hypotheses on the source, rather than properties the compiler must decide.
+Section~\ref{sec:compiler} constructs this compiler by specializing one
+fixed deterministic library.
+
+
+\subsection{Where the difficulty lies}
+
+Two familiar approaches explain why the claimed bound requires more than a routine simulation. Enumerating all random tapes uses too many choices. Replacing those tapes by a shorter seed helps, but Nisan's generator still uses $O(\log^2 n)$ seed bits for a polynomial-time logarithmic-space computation~\cite{Nisan1992}; direct enumeration of those seeds takes quasipolynomial time. Alternatively, one can work directly with the configuration graph and recursively evaluate transition probabilities. That approach has to account for the information retained at every recursive level, not merely the space used by one local calculation.
+
+Earlier work connects acceptance-probability estimation to stochastic matrix products and inverses~\cite{AhmadinejadKelnerMurtaghPeeblesSidfordVadhan2020}, and uses different accuracies at different recursion levels~\cite{CohenDoronSberloTaShma2023}. These are useful points of comparison for the construction below. Our full discussion of prior work, including the distinction between a space bound and simultaneous polynomial-time and space bounds, appears at the end of these notes.
+
+\subsection{How to read the proof}
+
+Section~\ref{sec:overview} explains the construction before introducing its implementation details. The formal proof then has three parts. First, Sections~\ref{sec:model}--\ref{sec:hierarchy} replace the original transition probabilities by a sequence of exact reward calculations whose remaining error decreases geometrically. Second, Sections~\ref{sec:atom}--\ref{sec:fp-blocks} define and analyze a recursive estimator for these rewards. Third, Sections~\ref{sec:arith}--\ref{sec:ctrl} show how to evaluate that estimator while retaining only logarithmically many bits. Section~\ref{sec:conclusion} combines the three parts and derives the consequences stated above.
+
+The longer arithmetic constructions and the effective compiler are included after the main argument. Their statements and proofs are retained: moving them later changes the order of reading, not the hypotheses on which the simulation rests.

@@ -1,0 +1,49 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Reorganized and expanded for pedagogy; see README.md for the pinned source and scope.
+\documentclass[11pt]{article}
+\input{preamble}
+
+\title{Exact Derandomization of Logarithmic Space:\protect\\
+ $\Lclass=\RL=\BPL$\protect\\[6pt]
+ \large A pedagogical exposition of the September 23, 2026 preprint}
+\author{Original mathematics: OpenAI\\[3pt]\normalsize Expository adaptation prepared with Codex}
+\date{October 7, 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We give a detailed exposition of OpenAI's construction for deterministic simulation of polynomial-time randomized logarithmic-space computation. The central result approximates arbitrary acceptance probabilities to any fixed inverse-polynomial accuracy in logarithmic space and polynomial time, yielding $\Lclass=\RL=\BPL$. The construction first transfers transition contributions into an accumulated reward while reducing the remaining transition mass. It then estimates the reward using sparse random tables described by logarithmically many bits. The main implementation issue is to evaluate the recursive estimator without retaining a full vertex address or numerical register at every level. We explain the conditional averaging, successive-accuracy estimates, row compression, and total memory accounting that address this issue. The quantitative accuracy result, accepting-computation construction, and effective compiler are included with their proofs.
+\end{abstract}
+
+\begingroup\small
+\noindent This is an expository adaptation of \emph{Exact Derandomization of Logarithmic Space: $\Lclass=\RL=\BPL$}, OpenAI, September 23, 2026. The mathematical claims and proof route are those of that preprint; this version reorganizes the presentation and expands the explanations. The source version and license are recorded in the accompanying README.\par
+\endgroup
+
+\clearpage
+\begingroup\small
+\tableofcontents
+\endgroup
+\clearpage
+\input{sections/introduction}
+\input{sections/overview}
+\input{sections/model}
+\input{sections/environment}
+\input{sections/hierarchy}
+\input{sections/estimator-description}
+\input{sections/atoms}
+\input{sections/averaging}
+\input{sections/estimation}
+\input{sections/compression}
+\input{sections/fingerprints}
+\input{sections/arithmetic}
+\input{sections/implementation}
+\input{sections/conclusion}
+
+\appendix
+\input{sections/arithmetic-details}
+\input{sections/compiler}
+\input{sections/related}
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}

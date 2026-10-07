@@ -1,0 +1,135 @@
+% Expository adaptation, October 7, 2026. Original mathematics: OpenAI, September 23, 2026.
+% Reorganized and expanded for pedagogy; see README.md for the pinned source and scope.
+\section{Technical overview}
+\label{sec:overview}
+
+The proof has two distinct tasks. It needs a mathematical expression that approximates acceptance probability, and an algorithm that evaluates this expression within the space bound. A compact expression does not by itself give a small-space algorithm: evaluating one part can require another part, while the first calculation still has information to remember. We will first explain the expression and then the evaluation. Along the way, we identify the specific problem solved by each additional construction.
+
+\subsection{Start with the configuration graph}
+
+A configuration records everything needed to continue a computation: the machine state, tape contents, and head positions. Since the machine uses logarithmic space and polynomial time, it has polynomially many relevant configurations. Attach the elapsed time to each configuration. An edge then always moves to a later layer, and its weight is the probability of the corresponding machine step.
+
+Let $T(n)$ be a polynomial bound on the running time. Write $S$ for the resulting transition matrix and $e$ for the indicator of accepting configurations in the final layer, at time $T(n)$. The continuation probabilities form the vector $p_0$. They satisfy
+\[
+ p_0=e+Sp_0,
+ \qquad
+ p_0=(I-S)^{-1}e=\sum_{j=0}^{T(n)}S^j e.
+\]
+There is no convergence issue in this inverse: every transition advances time, so sufficiently long products vanish. The coordinate $p_0(x_0)$ at the initial configuration is the probability we want.
+
+This formulation identifies the target, but it does not solve the memory problem. Storing $p_0$ explicitly would use one number per configuration. Computing its entries by a recursive matrix calculation avoids that table, but a direct implementation can retain a configuration address at each of logarithmically many levels, producing a squared-logarithmic memory cost. The construction must control both the number of levels and the information retained at each level.
+
+\subsection{Transfer transition contributions into a reward}
+
+Suppose a transition matrix $C$ and a reward vector $W$ represent a vector $p$ through $W=(I-C)p$. Equivalently, $p=W+Cp$: the reward accounts for one part of the value and the remaining transitions account for the rest. The goal is to make the second part small while updating the first part exactly.
+
+For a nonnegative correction $E$, set $D=C-E+EC$. The identity
+\[
+ \begin{aligned}
+ I-D&=I-C+E-EC=(I+E)(I-C),\\
+ (I+E)W&=(I-D)p
+ \end{aligned}
+\]
+shows how to update the reward. Once $E$ has been chosen, replacing $C$ by $D$ and $W$ by $(I+E)W$ preserves the vector being represented. This identity is the algebraic reason for the correction rule.
+
+An individual term also has a useful interpretation. Subtracting $E(x,y)$ removes part of a transition from $x$ to $y$. The product $EC$ includes the continuation from $y$, and the added reward $EW$ includes the reward already assigned to $y$. The identity above combines these two contributions without changing the represented value. Nonnegativity and row-sum bounds must still be proved; they are not automatic for an arbitrary $E$.
+
+For a two-vertex example, take
+\[
+ C=\begin{pmatrix}0&1/2\\0&0\end{pmatrix},\qquad
+ W=\begin{pmatrix}0\\1\end{pmatrix},\qquad
+ p=\begin{pmatrix}1/2\\1\end{pmatrix}.
+\]
+The first vertex has no immediate reward; its value comes from the transition to the second vertex. Choosing $E=C$ gives $D=0$, because $C^2=0$, and the new reward is $(I+E)W=p$. All of the continuation value has become immediate reward. In a larger graph the same identity applies, but we must choose which transition contributions to transfer so that the resulting tables remain accessible in small space.
+
+Why not simply cancel every large transition entry? A column receiving many substantial contributions would then make later incoming queries expensive. The correction is therefore enabled only where a detector certifies the required column bound. The remaining large entries are divided between copies of vertices. Copying itself has a cost, so the detector must also show that only a controlled number of the extra copies become active.
+
+The one-stage conclusion of Proposition~\ref{prop:hier-copy-step} is the useful summary. The maximum transition entry decreases from $f$ to $f/2^H$, while the number of vertices incident to positive transitions increases by at most a factor of two. Here $H\ge4$ is fixed. Thus entries decrease faster than the active vertex count grows. Counting all formal copies would miss this point: many copies have no role in the residual transition matrix.
+
+After $l$ stages, the exact reward is $W_l$. Let $z_l$ be the copy of the initial vertex obtained by choosing the designated primary copy at every stage. Proposition~\ref{prop:hier-reward-target} gives
+\[
+ 0\le p_0(x_0)-W_l(z_l)\le |V_0|\,2^{-(H-1)l}.
+\]
+The original configuration set $V_0$ has polynomial size. Therefore $L=O(\log(n+2))$ stages make the residual smaller than any fixed inverse polynomial. This finishes the first mathematical task: it identifies a reward whose value suffices to approximate acceptance probability. The reward is defined by exact formulas; no large matrix or reward vector is to be stored.
+
+Two details make this construction usable later. First, the correction is obtained by only a fixed number of iterations. Although its comparison fixed point is defined recursively across the graph, a bound counting strictly increasing paths gives factorial decay of the truncation error; it does not require a contraction constant for the whole matrix. Second, the column multiplier is chosen in a preliminary calculation and then held fixed during the actual correction. This keeps the monotonicity needed for the fixed-point comparison. Section~\ref{sec:hierarchy} proves these statements after explaining the one-stage goal.
+
+\subsection{Represent large matrices by sparse random tables}
+
+The exact reward depends on transition entries, correction products, and detector averages. To estimate these quantities, Section~\ref{sec:atom} replaces their contributions by tables that depend on a small shared random choice. Only a bounded number of entries in a row remain available in one such table. For the correction tables, the incoming degree is bounded as well. The terminology ``atom'' in the detailed formulas refers to one of these sparse random representations; it does not mean a stochastic transition matrix with row sum one.
+
+Randomly discarding entries creates an immediate problem: a sampled row can occasionally contain too many entries. A row gate suppresses those crowded outcomes. But suppression changes the expected value. The construction corrects that change by dividing by the true conditional probability that the gate permits the contribution. A preliminary table supplies this denominator, and the analysis proves that it is bounded away from zero wherever it is needed. This is why both preliminary and normalized tables occur.
+
+The resulting conditional-mean identities are exact for the true tables. They do not assert that applying the same formulas to approximate inputs remains unbiased. The estimator substitutes earlier computed values into those formulas, creating an error that must be analyzed. In particular, all calls use one shared random environment. Their answers may be correlated, so the proof cannot replace the expectation of a product by a product of expectations.
+
+Section~\ref{sec:env} constructs the shared random subsets. A constant-size collection of polynomial coefficient arrays over a sufficiently large finite field describes the retention tests. Its description has $O(B)$ bits, where $B=\Theta(\log(n+2))$. The required properties are concrete: the retention probability is comparable with the stated rate, conditioning on one retained vertex does not make another vertex too likely to be retained, and a large set is unlikely to have far fewer retained elements than its expected count. Common copy suffixes preserve these properties.
+
+The estimator also needs to average while a particular queried vertex remains retained. Section~\ref{sec:averaging} supplies finite walks on the shared environment that preserve the relevant retention conditions and approach their conditional distribution at a uniform rate. This is the role of the group-theoretic input from Shalom~\cite{Shalom1999}. The estimator uses the conditional averaging guarantee; the group action is how that guarantee is obtained. Neither independent fresh randomness at every call nor an unproved independence assumption is substituted for it.
+
+\subsection{Improve accuracy by averaging successive differences}
+
+At first sight one might request a highly accurate estimate from every recursive child. That would leave little reduction in the work delegated to the child, and hence little room to pay for information retained by its parent. Section~\ref{sec:est} instead uses children at several lower statistical budgets.
+
+For one sample contribution, write $T_{b,m}$ for the approximation available at child budget $m$, with $T_{b,0}=0$. The identity behind the schedule is simply
+\[
+ \sum_{m=1}^{M}\bigl(T_{b,m}-T_{b,m-1}\bigr)=T_{b,M}.
+\]
+The actual finite schedule includes scale cutoffs and endpoint grouping, specified in Section~\ref{sec:est}. The reason for using differences is already visible in this identity: consecutive approximations approach the same target, so their difference is smaller than the target itself. The earlier, less accurate differences receive more averaging; the later, smaller differences need less.
+
+The parent has budget $M$ and a child has budget $m$. Their difference $M-m$ determines the averaging-walk length and the size of the description needed for an immediate sample path. Thus one quantity links the statistical analysis to the memory analysis. Comparable budget differences are grouped together so that the associated descriptions and error estimates have compatible sizes.
+
+The proof keeps two errors separate. Replacing true inputs by approximate child values changes the conditional mean. Using only a finite averaging walk then leaves a deviation from that mean. The first error is propagated through the formulas; the second is controlled by the mixing estimate. They obey different bounds and cannot be treated as independent random errors.
+
+A product of tables gives an additional constraint. After moving from the source vertex to an intermediate vertex, the right factor must be queried there without retaining the old source address. This changes the weighted domain over which its error is measured. The bounded incoming degree controls the change, and the accuracy assigned to the child pays for the resulting factor. Discarding an address is therefore justified both computationally and analytically.
+
+\subsection{Keep row descriptions small enough to access}
+
+Adding all the sample contributions can produce a large row array even though each individual table is sparse. Section~\ref{sec:buf-compression} represents a row by a common default value and a list of exceptions. A threshold selected from the row determines which differences from the default need to remain. The update varies continuously with the input estimates, which is important when those estimates are slightly wrong.
+
+This is an implicitly accessed list, not an array stored in memory. An entry is found by following a description of a sample path. The allowed number of descriptions can grow with the budget difference, but the description of any one candidate has the corresponding bounded length. Later queries enumerate or recompute candidates instead of saving the whole list.
+
+The error analysis asks why a row has too many apparent exceptions. There are two possibilities. The true row may contain unusually many sampled large entries, an event controlled by the sampling estimates. Alternatively, inaccurate child values may have made small entries appear large; that case is charged to the earlier errors. The conditioning on the queried vertex matters in the first case, and the remaining averaging noise must be handled separately.
+
+There is still a problem with deciding whether two descriptions reach the same vertex. Saving one full vertex identifier while evaluating the other would reintroduce the memory cost we are trying to avoid. At small budget differences, Section~\ref{sec:fp-blocks} therefore compares shorter hash values, called fingerprints. At sufficiently large differences, storing the exact identifier is affordable and exact equality is used.
+
+A usual collision bound for two fixed vertices does not settle this use of fingerprints. Earlier comparisons influence which vertices are considered later, so the pair being compared can depend on the hash function. The proof fixes this dependence one budget block at a time. It compares the actual computation with one using exact equality within that block. Conditional on the other random choices, the comparison computation exposes a candidate set independent of the current block's hash bits. Collisions within that set are then bounded in the usual way; departures from the set are charged to errors in lower calls. Theorem~\ref{thm:fp-estimators} closes these error estimates together.
+
+One final detail prevents even the short hash indices from accumulating on the call stack. A shared bit vector supports reversible comparison of two keys. Its contents may be arbitrary, and a comparison restores them before returning. This is the meaning of ``catalytic'' here: the bits can be used temporarily without assuming a clean initial value. Their storage is included in the logarithmic-space bound. Section~\ref{sec:fp-blocks} gives the short comparison procedure explicitly.
+
+\subsection{Account for memory across the entire recursion}
+
+We now have an estimator and its error bound. We still need a finite algorithm for evaluating it. A statement that each local routine uses $O(B)$ bits would not suffice: if every suspended caller kept that much, a chain of $O(B)$ calls could use $O(B^2)$ bits.
+
+Section~\ref{sec:arith} first separates statistical accuracy from numerical accuracy. For a fixed random environment and statistical budget, an estimator entry has one fixed real value. A numerical query asks for one digit of that value. Requesting more digits does not change which table, list, or port defines the value. The digits are from a fixed signed alphabet, which permits their computation from bounded residues of finite approximations.
+
+Section~\ref{sec:ctrl} then evaluates the graph operations with one shared current vertex. A paired correction port records enough information to undo a move without saving the old vertex. Where an incoming operation must be reconstructed, a traversal of the finite local program performs that reconstruction. The relevant traversal ideas come from Cook and McKenzie~\cite{CookMcKenzie1987} and Lange, McKenzie and Tapp~\cite{LMT2000}. The proof must count the program records retained during these traversals as well as the ordinary recursive records.
+
+The central bound is a difference bound. Give the parent an allowance $w$ and requested digit place $t$, and give its child allowance $w'$ and digit place $j$. Every local bit retained while that child runs is bounded by
+\[
+ A(w-w')+D(t-j),
+\]
+for fixed constants chosen in the space theorem. The child's allowance is smaller. The child may request a later digit, so $t-j$ can be negative; a separate bound limits that increase by the decrease in allowance. Both inequalities are needed.
+
+To see why this form helps, follow one active chain of calls. Each intermediate allowance occurs once with a plus sign and once with a minus sign. The same cancellation occurs for intermediate digit places. Including the innermost computation leaves a bound controlled by the initial allowance and digit place, both $O(B)$. The shared random environment, current vertex, catalytic bits, and scratch space are counted once in addition to these records. This is the mechanism behind the total $O(B)$ bound, not merely a bound on the size of individual identifiers.
+
+The arithmetic details later in these notes prove the local digit bounds used here, including what happens when a child needs more precision. The controller proof verifies that the actual estimator routines satisfy them. Termination and storage bounds hold for every random environment, independently of whether its estimate is accurate.
+
+\subsection{Enumerate the estimates and take a median}
+
+The estimator's error theorem is initially an average over retained vertices. At the final stage, write $X_f(v)$ for retention of $v$ at rate $f$, and $\pi_f$ for its retention probability. The integrated eighth-moment bound has the form
+\[
+ \frac1N\mathbb E\sum_{v\in V_L}\frac{X_f(v)}f
+ |\bar W_L(v)-W_L(v)|^8\le C^8 2^{-8p},
+\]
+where $N$ bounds the size of a stage and $p$ is the statistical accuracy exponent. To use this at the particular start copy $z_L$, keep only its nonnegative summand and condition on its retention:
+\[
+ \mathbb E\!\left[|\bar W_L(z_L)-W_L(z_L)|^8\mid X_f(z_L)=1\right]
+ \le N\frac f{\pi_f}C^8 2^{-8p}.
+\]
+Passing to one specified start costs the factor $N$. It is not free, but $\log N=O(B)$ and $\pi_f$ is comparable with $f$, so a sufficiently large constant multiple of $B$ in the statistical budget pays this cost. Markov's inequality then makes more than three quarters of the conditional environments accurate.
+
+There are only $2^{O(B)}$ descriptions of the shared random environment. Enumerate the original descriptions satisfying the conditioning event, preserving their multiplicities, and compute a sufficiently accurate dyadic value for each. The median can be found by repeated counting passes over this enumeration. Only the current description, counters, and a few numerical registers are retained; the list of estimates is never stored.
+
+Every evaluation halts, including evaluations on inaccurate environments. A halting deterministic computation with $O(B)$ bits and input heads confined to the actual input has at most $2^{O(B)}$ complete configurations. It therefore takes at most that many steps. Multiplying by the number of environments and the polynomially bounded number of counting passes still gives $2^{O(B)}$, which is polynomial in the input length. Section~\ref{sec:conclusion} allocates the hierarchy error, statistical error, and digit-truncation error explicitly and derives the final approximation guarantee.
+
+The later extensions use this approximation result as a black box. Padding provides the requested variable accuracy, continuation probabilities guide the construction of accepting runs, and one resource-capped interpreter yields the effective compiler. Their proofs do not require a different estimator.
