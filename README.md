@@ -1,45 +1,52 @@
 # Deslop
 
-AI-generated proofs can be hard for a human to read even when they are correct. This folder describes a three-prompt sequence that rewrites such a proof so a person can follow it, then checks that the rewrite is still correct.
+AI-generated proofs can be hard to read even when they are correct. This workflow helps you understand a writeup, plan and produce a clearer version, and check the result.
 
 | Step | Where | Attach |
 |---|---|---|
-| 1. Plan the rewrite | New chat | `human_friendly_writing_workflow.md` |
-| 2. Write the rewrite | Same chat as step 1 | Nothing |
-| 3. Audit the rewrite | New chat | `verifier.md` |
+| 1. Digest | Working chat | `explainer.md` |
+| 2. Plan | Same chat | `human_friendly_writing_workflow.md` |
+| 3. Write | Same chat | Nothing new |
+| 4. Verify | Fresh chat | `verifier.md` |
 
-[`human_friendly_writing_workflow.md`](human_friendly_writing_workflow.md) tells the model how to write for a human reader, and [`verifier.md`](verifier.md) tells it how to check a proof adversarially. In the prompts below, replace the bracketed parts.
+Use [`explainer.md`](explainer.md) for the discussion, [`human_friendly_writing_workflow.md`](human_friendly_writing_workflow.md) for the manuscript, and [`verifier.md`](verifier.md) for the independent check. Replace the bracketed parts in the prompts below.
 
-## 1. Plan
+## 1. Digest
 
-Start a new chat, attach `human_friendly_writing_workflow.md`, and send:
+Attach `explainer.md` and send:
 
-> Can you review the writeup at [LINK TO WRITEUP]?
->
-> This is incomprehensible to a human. I would like to see if you can rewrite this using the attached human_friendly_writing_workflow.md to make it clearer (with a technical overview and all).
->
-> Take a look and let me know what changes you would make.
+> Can you review the writeup at [LINK TO WRITEUP]? This is incomprehensible to a human. Explain the high-level ideas to me. Throughout this interaction, adhere stringently to the principles in explainer.md.
 
-Discuss the proposed changes until you agree on a plan. A few rounds of back-and-forth are worth the time, because the structure of the rewrite is much easier to change now than after it has been written.
+Ask follow-up questions until you understand the main ideas and what makes the argument work.
 
-## 2. Write
+## 2. Plan
+
+In the same chat, attach `human_friendly_writing_workflow.md` and send:
+
+> Using the insights we've gleaned, I would like to see how you would rewrite the original writeup using the attached human_friendly_writing_workflow.md to make it clearer, including a clear technical overview. Let me know what changes you would make. Throughout this interaction, adhere stringently to the principles in explainer.md.
+
+Discuss the proposed changes until you agree on a plan. Identify where simplifications used in the discussion need their technical details restored in the rewrite.
+
+## 3. Write
 
 In the same chat, send:
 
-> The plan we've arrived at sounds good. Please prepare a full rewrite of this paper along the lines of your suggestions. When in doubt, err on the side of pedagogy and lecture-note-level explanations. The pedagogy is more important than stylistically resembling typical CS theory papers.
+> The plan we've arrived at sounds good. Please prepare a full rewrite of the original paper following it and human_friendly_writing_workflow.md. When in doubt, prioritize pedagogy and lecture-note-level explanations over the terseness of a typical research paper.
 
-End the prompt with one of these sentences, depending on where you want the result:
+End the prompt with one of these sentences:
 
 - **Chat mode:** "Send a .tex file and its compiled PDF here in the chat."
 - **Git mode**, if the model can open pull requests: "Submit a .tex file and its compiled PDF to [REPOSITORY URL] under a new folder titled [FOLDER NAME], as a pull request."
 
-## 3. Audit
+## 4. Verify
 
-Start a new chat so that the auditor does not inherit the writer's reasoning. Attach `verifier.md` and send:
+Start a fresh chat so the auditor does not inherit the writer's reasoning. Attach `verifier.md` and provide both writeups:
 
-> Adversarially audit [LINK TO THE REWRITE] for correctness subject to the verifier.md standards attached. Be pedantic.
+> Adversarially audit [LINK TO THE REWRITE] for correctness subject to the attached verifier.md. Be pedantic. Compare it with [LINK TO THE ORIGINAL] for omitted claims or changes in assumptions and conclusions.
 
-The review opens with a single verdict, such as VERIFIED or INCOMPLETE, and then lists the problems that the main result depends on.
+The review opens with a verdict, such as VERIFIED or INCOMPLETE, followed by the findings.
+
+Bring the findings back to the writing chat for repairs, then repeat Step 4 with the revised writeup and previous findings. Continue until substantive issues are resolved.
 
 ## Example: L = RL = BPL
 
@@ -54,3 +61,4 @@ Like the OpenAI original, `bpl_example/` is distributed under the Apache License
 This folder is the result of iterations by Aparna Gupte (MIT) and Seyoon Ragavan (MIT) to assist with our own research. This was prepared using GPT-5.6 Sol, GPT-6 Astra, and Claude Opus 5.5.
 
 If you would like to give feedback, please fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSdUxJtw3jFhZHynOe6IPheNxXginvY_B7AHHi1d5uh4KwNvdw/viewform); we greatly appreciate it.
+
