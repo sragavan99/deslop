@@ -49,6 +49,8 @@ We make no claim to originality. The mathematics, theorem statements and proofs 
 
 Like the OpenAI original, `bpl_example/` is distributed under the Apache License 2.0 (see [`bpl_example/LICENSE`](bpl_example/LICENSE)). The rest of this repository is under the MIT License.
 
-## Attribution
+## Attribution and Feedback Form
 
 This folder is the result of iterations by Aparna Gupte (MIT) and Seyoon Ragavan (MIT) to assist with our own research. This was prepared using GPT-5.6 Sol, GPT-6 Astra, and Claude Opus 5.5.
+
+If you would like to give feedback, please fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSdUxJtw3jFhZHynOe6IPheNxXginvY_B7AHHi1d5uh4KwNvdw/viewform); we greatly appreciate it.
