@@ -50,11 +50,11 @@ Bring the findings back to the writing chat for repairs, then repeat Step 4 with
 
 ## Example: L = RL = BPL
 
-[`bpl_example/`](bpl_example/) contains a rewrite of OpenAI's preprint *Exact Derandomization of Logarithmic Space: L = RL = BPL* (September 23, 2026). You can compare [the original](https://github.com/openai/math/blob/adc7f1241b42e322a6451854ab7e4b4c146bf78a/preprints/Exact-Derandomization-of-Logarithmic-Space-L-equals-RL-equals-BPL-September-23-2026/paper.pdf) with [the rewrite](bpl_example/main.pdf).
+[`bpl_example/`](bpl_example/) contains a rewrite of OpenAI's preprint *Exact Derandomization of Logarithmic Space: L = RL = BPL* (September 23, 2026). You can compare [the original](https://github.com/openai/math/blob/adc7f1241b42e322a6451854ab7e4b4c146bf78a/preprints/Exact-Derandomization-of-Logarithmic-Space-L-equals-RL-equals-BPL-September-23-2026/paper.pdf) with [the rewrite](bpl_example/current/main.pdf), and read [the adversarial audit of the rewrite](bpl_example/current/adversarial-audit.pdf) from Step 4.
 
-We make no claim to originality. The mathematics, theorem statements and proofs are OpenAI's. We only put the OpenAI version through a predecessor of this workflow, which reorganized the presentation and expanded the explanations. [`bpl_example/README.md`](bpl_example/README.md) describes what changed.
+We make no claim to originality. The mathematics, theorem statements and proofs are OpenAI's. We only put the OpenAI version through this workflow with some light questioning and steering. [`bpl_example/current/README.md`](bpl_example/current/README.md) describes what changed. An earlier rewrite, made with a predecessor of this workflow, is kept in [`bpl_example/old_v1/`](bpl_example/old_v1/).
 
-Like the OpenAI original, `bpl_example/` is distributed under the Apache License 2.0 (see [`bpl_example/LICENSE`](bpl_example/LICENSE)). The rest of this repository is under the MIT License.
+Like the OpenAI original, `bpl_example/` is distributed under the Apache License 2.0 (see [`bpl_example/current/LICENSE`](bpl_example/current/LICENSE)). The rest of this repository is under the MIT License.
 
 ## Attribution and Feedback Form
 

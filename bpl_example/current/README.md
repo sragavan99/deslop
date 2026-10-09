@@ -1,4 +1,4 @@
-# BPL rewrite — run 2
+# BPL rewrite
 
 This folder contains a complete lecture-note exposition of **Exact Derandomization of Logarithmic Space: L = RL = BPL**. The original mathematics is credited to OpenAI. The expository adaptation was prepared with Codex on October 8, 2026.
 
@@ -39,5 +39,3 @@ Alternatively, run `pdflatex -interaction=nonstopmode -halt-on-error main.tex` t
 The source inventory and final manuscript contain the same 69 theorem, lemma, proposition, corollary, and definition environments, all 67 proofs, and all seven remarks. Every original section-source label is retained. A separate comparison before the approved notation conversion located all 282 displayed formulas from the original technical sections in the editorial source. These are preservation checks, not proof verification.
 
 The standalone source was compiled from a clean directory. The final build has no unresolved references or citations, duplicate labels, or overfull/underfull box warnings. All pages were rendered for layout review, with closer inspection of the overview, figures, algorithm boxes, tables, renamed equations, and page transitions. The figure's three updates were also checked with exact rational arithmetic.
-
-This run adds only this new folder; the earlier rewrite is unchanged.
