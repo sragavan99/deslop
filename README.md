@@ -40,13 +40,49 @@ End the prompt with one of these sentences:
 
 ## 4. Verify
 
-Start a fresh chat so the auditor does not inherit the writer's reasoning. Attach `verifier.md` and provide both writeups:
+Start a fresh chat so the auditor does not inherit the writer's reasoning.
+Attach `verifier.md` and both writeups at exact recorded versions. State the
+audit purpose and full or component scope. The default full correctness check
+is an **independent audit**.
 
-> Adversarially audit [LINK TO THE REWRITE] for correctness subject to the attached verifier.md. Be pedantic. Compare it with [LINK TO THE ORIGINAL] for omitted claims or changes in assumptions and conclusions.
+Before sending, inspect the actual writeups, supporting material, prompts,
+ledgers, filenames and launch instructions. Withhold internal checks, previous
+reviews, and direct or indirect disclosures of their favorable or unfavorable
+judgments or review reasoning. Remove pressure toward either acceptance or
+rejection. Preserve the mathematics, assumptions, attribution, limitations and
+open proof obligations. If these share a source with evaluative history,
+prepare an identified audit copy, retain the original and record the mapping;
+do not silently change the candidate or conceal a missing argument. Record
+the content check with the packet version; filenames or hashes alone are not
+a content check.
 
-The review opens with a verdict, such as VERIFIED or INCOMPLETE, followed by the findings.
+> Independently audit [LINK AND EXACT VERSION OF THE REWRITE] in full for correctness subject to the attached verifier.md. Test the argument adversarially while remaining indifferent to the outcome. Compare it with [LINK AND EXACT VERSION OF THE ORIGINAL] for omitted claims or changes in assumptions and conclusions. Do not seek earlier judgments of these writeups.
 
-Bring the findings back to the writing chat for repairs, then repeat Step 4 with the revised writeup and previous findings. Continue until substantive issues are resolved.
+The review opens with a verdict, such as VERIFIED or INCOMPLETE, followed by
+the findings, exact version, scope and any observed prior-judgment exposure.
+Use the same completeness standard for an internal check and an external
+audit; the verifier distinguishes routine expansion from substantive repair.
+
+Bring the findings back to the writing chat for repairs. For the next review,
+choose and declare the purpose:
+
+- **Independent audit:** withhold earlier judgments and review reasoning
+  again. Freeze the complete independent report before any later comparison;
+  an initial proof map is insufficient.
+- **Adjudication:** supply exact prior findings and manuscript versions to
+  resolve specified objections or conflicting reviews.
+- **Delta audit:** supply the exact baseline, its review and the patch, and
+  identify inherited coverage and rechecked dependencies. Changes to a
+  load-bearing interface or proof layer require fresh end-to-end review.
+
+Adjudication and delta audits are not blind full audits. Reconcile disputed
+inferences using the exact versions and supporting mathematics. A newer
+VERIFIED label alone does not resolve an earlier objection. Preserve both
+reviews and hold acceptance of affected claims until their load-bearing
+objections are resolved. A substantive repair creates a revised candidate to
+audit; it does not retrospectively verify the original. If earlier judgments
+are encountered during an independent review, disclose what and when, retain
+the useful review as non-blind, and do not count it as independent replication.
 
 ## Example: L = RL = BPL
 
