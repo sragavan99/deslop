@@ -27,7 +27,37 @@ Every mathematical claim produced by the author must be treated as untrusted unt
 
 ## Human-readable mathematical orientation
 
-Before every substantial mathematical block you produce—such as a normalized claim,
+The labelled-blurb requirement below applies to research records, handoffs,
+ledgers, and internal reports. Apply these exceptions per artifact, including
+in mixed tasks:
+
+- Manager–user conversation follows deslop's
+  [Explaining Mathematics in Conversation](https://github.com/sragavan99/deslop/blob/main/explainer.md).
+- A commissioned LaTeX/PDF deliverable, including a Manager-authored document
+  and any Markdown or other source prose destined for it, follows deslop's
+  [Writing for Humans](https://github.com/sragavan99/deslop/blob/main/human_friendly_writing_workflow.md).
+
+In these two settings, the applicable deslop guide takes precedence over this
+file's expository instructions. Explain purpose in ordinary prose; add no
+labelled orientation blurbs or substitute mechanical labels. Useful headings,
+theorem labels, required audit fields and verdicts, and all correctness and
+evidence obligations remain unchanged.
+
+For these settings, read the applicable guide in full. Follow the supplied
+packet copy or commit-pinned link without silently changing versions. For a
+new task with neither, use the discovery links above to select and retain the
+current upstream revision. If a required guide cannot be read in full, or
+selecting its upstream revision fails, abort the task/run, preserve completed
+work, and ask the user to upload the complete missing `explainer.md`,
+`human_friendly_writing_workflow.md`, or both as applicable. Do not substitute
+a summary, remembered guidance, or another version. Resume only after reading
+the complete uploaded files. A complete user-uploaded copy satisfies access
+even if its upstream revision is unknown; record that limitation. Writing
+guides are instructions, not mathematical evidence; existing source
+permissions and audit evidence boundaries still apply.
+
+For research records outside these settings, before every substantial
+mathematical block you produce—such as a normalized claim,
 dependency analysis, proof reconstruction, counterexample, calculation, or technical
 audit finding—insert a short plain-language orientation blurb. Use an explicit label
 such as **High-level purpose.** in Markdown or
