@@ -75,6 +75,42 @@ submitted mathematics or your audit reasoning in order to add the blurb. Write o
 blurb before each coherent mathematical audit block, not before every displayed
 equation or individual proof line.
 
+## Audit purpose and prior judgments
+
+State the exact candidate version, full or component scope, evidence standard,
+and audit purpose. Full correctness review defaults to an **independent audit**:
+do not seek or rely on internal Verifier reports, self-audits, prior reviews,
+or disclosures of their favorable or unfavorable judgments or reasoning.
+The Manager or person preparing the review should withhold them throughout
+the independent stage.
+
+An **adjudication** may receive exact prior findings and candidate versions to
+resolve specified objections. A **delta audit** may receive a baseline review
+and patch to check the change and affected dependencies. Both are legitimate
+but must not be described as blind full audits. A delta must state what it
+rechecks and what it inherits; changes to a load-bearing interface or proof
+layer require fresh end-to-end review.
+
+A complete independent report must be frozen before earlier judgments are
+supplied or read for a later comparison. Writing an initial proof map is not
+enough; label the later comparison as a separate non-blind stage. In
+adjudication, independently check the disputed inference against the exact
+versions; give the evidence resolving it or state that it remains unresolved.
+A newer label, the reviewer/model identity, or majority opinion is not evidence.
+
+Test the argument adversarially while remaining indifferent to acceptance or
+rejection. Neither encouragement toward a positive verdict nor pressure to
+find a flaw changes the standard. Necessary mathematical content, assumptions,
+attribution, and author-stated limitations remain part of the candidate.
+
+If an earlier candidate judgment is actually encountered, disclose what and
+when, preserve the review, and identify the affected stage as non-blind. Continue
+useful work; do not count it as independent replication. Do not inspect hidden
+or ambient context, perform an isolation preflight, or abort merely because
+project history or permissions exist. A prior audit label alone establishes
+no mathematical dependency; check its actual statement, source and interface,
+or explicitly identify any assumption or inherited delta-audit coverage.
+
 ## Audit procedure
 
 For each candidate result, perform the following checks.
@@ -236,6 +272,35 @@ When reviewing a formalization or computer-assisted proof, check for:
 
 Compilation alone does not show that the formal theorem matches the intended theorem.
 
+## Completeness and auditor-supplied reasoning
+
+The same rigorous completeness requirement applies to in-run and external
+Verifier reviews. Limit completed verdicts to the scope actually checked;
+unfinished coverage does not justify `VERIFIED` for the full claim. Distinguish
+unchecked steps from demonstrated proof gaps. Do not switch to a heuristic
+standard to obtain a favorable verdict.
+
+Classify every material inference supplied beyond the candidate's text:
+
+- **Routine expansion:** a standard local inference determined by the stated
+  argument, definitions, or checked source results, with no new mathematical
+  idea, hypothesis, or substantive missing argument. Write out enough reasoning
+  to justify that classification. It may support verification of the submitted
+  proof.
+- **Substantive repair:** supplying a material missing argument, proving an
+  essential auxiliary result beyond routine expansion, changing the proof route
+  or claim, or adding an assumption
+  needed for the inference. Even if you complete the repair, the original
+  version retains its gap or error; a repaired candidate must be frozen as a
+  new version and audited at the required full or delta scope.
+
+Record the candidate location, added reasoning, classification, justification,
+and verdict consequence in the review or its evidence ledger. Do this for
+material additions, not every routine algebraic line. Length alone does not
+decide the classification; explain doubtful cases. Do not hide a missing proof
+obligation as an imported assumption to mark the original `VERIFIED`; distinguish
+any conditional reformulation from the submitted headline.
+
 ## Verdicts
 
 Use exactly one principal verdict:
@@ -265,7 +330,11 @@ Produce the review in the following order.
 
 ### Verdict
 
-State the principal verdict and a one-paragraph justification.
+State the principal verdict and a one-paragraph justification. Identify the
+audit purpose, evidence standard, exact candidate version, completed scope, and
+any declared or observed exposure to prior candidate judgments (or none
+observed). Do not describe partial coverage or a non-blind review as an
+independent full audit.
 
 ### Claim audited
 
@@ -291,6 +360,11 @@ Walk through the proof or construction in dependency order. Mark each major step
 * not checked.
 
 Give enough mathematical detail that another researcher can reproduce the audit.
+Include the record of material auditor-supplied reasoning and its classification
+under the completeness standard above. For adjudication or a delta, identify
+each disputed inference or changed dependency, the exact compared versions,
+its disposition and supporting evidence, and any unresolved objection. Do not
+treat a new positive verdict as resolving an older objection by itself.
 
 ### Parameter, probability, and complexity audit
 
