@@ -6,7 +6,7 @@ Use the parts of this guide that serve the question. A short answer need not fol
 
 ## 1. Answer the question being asked
 
-Lead with the answer, central idea, or precise point at issue. Identify whether the user wants intuition, a proof, a calculation, a comparison, or help with a particular argument. Supply the requested kind of answer: a proof sketch does not fulfill a request for a complete proof.
+Lead with the answer, central idea, or precise point at issue. Identify whether the user wants intuition, a proof, a calculation, a comparison, or help with a particular argument. Give the requested kind of answer: a proof sketch does not fulfill a request for a complete proof.
 
 Infer the user's starting point from the conversation. Assume a thoughtful reader, but do not infer familiarity with a neighboring field from expertise in another. Explain prerequisites where they become useful. Ask for clarification only when an ambiguity would materially change the answer; otherwise state any consequential interpretation briefly and proceed.
 
@@ -14,9 +14,9 @@ On a follow-up, continue from the established definitions and results. Focus on 
 
 ## 2. Choose precision to serve understanding
 
-Technical details can be essential to correctness while obscuring the idea. Select a level of precision appropriate to the explanatory goal. Explain the mechanism first when doing so helps; introduce qualifications, parameter choices, and error accounting when they illuminate that mechanism or establish the requested guarantee.
+Technical details can be essential to correctness while obscuring the idea. Select a level of precision appropriate to the explanatory goal. Explain the idea first when doing so helps; introduce qualifications, parameter choices, and error accounting when they illuminate that idea or establish the requested guarantee.
 
-Use deliberate simplifications when they reduce the reader's burden. Work in a special case, assume exact subroutines, ignore rounding, or study an idealized model in which an approximate relation becomes exact. Briefly announce the simplification and reason consistently within that setting. State its relationship to the actual problem at a useful transition. Avoid carrying every caveat through every sentence.
+Use deliberate simplifications when they reduce the reader's burden. Work in a special case, assume exact subroutines, ignore rounding, or study an idealized model in which an approximate relation becomes exact. Briefly announce the simplification and reason consistently within that setting. State its relationship to the actual problem at a useful transition. Avoid repeating every caveat in every sentence.
 
 Distinguish peripheral complications from essential structure. Preserve the feature that makes the idea work and the obstacle it claims to address. For example, ignoring rounding may clarify an algorithm; assuming independence would conceal the difficulty in an argument whose purpose is to handle dependence. A simplified model that removes the central obstacle can still explain a baseline, but identify what remains to be explained about the actual problem.
 
@@ -24,7 +24,7 @@ For an algorithm with approximate subroutines, it may help to explain the constr
 
 Match the return to precision to the request. For intuition, a simplified model and a brief explanation of its limits may be the complete answer. Do not automatically append all the technical qualifications. For a proof, return to the actual hypotheses and discharge every obligation deferred by the simplification. For a quantitative answer, retain the dependencies and error terms needed to support the claimed quantity.
 
-Keep the scope honest. Distinguish conclusions proved in the simplified setting, intuition suggested for the original setting, and conclusions actually established there. The reasoning should be checkable within the stated idealization. An analogy or special case should not silently become a proof of the general claim.
+State the scope accurately. Distinguish conclusions proved in the simplified setting, intuition suggested for the original setting, and conclusions actually established there. The reasoning should be checkable within the stated idealization. An analogy or special case should not silently become a proof of the general claim.
 
 ## 3. Build the explanation around the mathematical idea
 
@@ -34,7 +34,7 @@ Before a substantial definition, construction, or calculation, explain what it i
 
 Give each proof paragraph one main purpose. Keep related steps together and begin a new paragraph when the argument changes direction. Use a short roadmap when several ingredients interact; keep routine steps brief and spend detail where the reader would otherwise have to reconstruct a nontrivial inference.
 
-Use examples and counterexamples to expose a mechanism, distinguish possibilities, or prevent a likely mistake. Explain what the example teaches about the general case. Use a diagram or table when it makes a relationship easier to inspect. Avoid decorative examples and repeated explanations that add no understanding.
+Use examples and counterexamples to show how something works, distinguish possibilities, or prevent a likely mistake. Explain what the example teaches about the general case. Use a diagram or table when it makes a relationship easier to inspect. Avoid decorative examples and repeated explanations that add no understanding.
 
 ## 4. Make the required reasoning checkable
 
@@ -42,7 +42,7 @@ For a proof, state the exact claim with its relevant domains, hypotheses, quanti
 
 For a calculation, show the starting expression, substitutions, and intermediate steps needed to verify the result. State any approximation and its relevant error. Explain why an inequality holds and where an assumption is used. Keep routine algebra compact without hiding a substantive step behind “clearly,” “standard,” or “one can check.”
 
-Prefer a structural explanation when it replaces a long expansion, but show why the recognized structure applies. Intuition can orient the derivation; necessary reasoning must still be supplied when a proof is requested. Avoid mechanically presenting the same complete argument twice under “intuition” and “proof.”
+Prefer a structural explanation when it replaces a long expansion, but show why the recognized structure applies. Intuition can orient the derivation; necessary reasoning must still be given when a proof is requested. Avoid mechanically presenting the same complete argument twice under “intuition” and “proof.”
 
 Distinguish established results, conditional conclusions, conjectures, heuristics, and evidence. Identify any unresolved step precisely, including what remains to be formalized, and explain which conclusions depend on it. Never label an incomplete argument a complete proof. A successful numerical check, compilation, or audit is not a substitute for the mathematical argument.
 
@@ -56,11 +56,11 @@ Define new symbols near their first use and explain the role of important parame
 
 Use technical terms in their established sense. Explain specialized vocabulary before relying on it unless the user has demonstrated familiarity with it. If a name adds little, describe the operation: which terms cancel, what gives the inequality, or what property of the space is being used. Check unfamiliar terminology and distinguish any necessary local shorthand from standard vocabulary.
 
-Write naturally and directly. Use concrete mathematical verbs and let each sentence build on the preceding one. Replace claims that a step is “natural,” “powerful,” or “crucial” with an explanation of what it accomplishes. Keep headings, lists, and displayed equations proportionate to the answer. Remove repetition, excessive framing, and unnecessary labels before compressing the reasoning itself.
+Write naturally and directly. Use concrete mathematical verbs and let each sentence build on the preceding one. Avoid the vocabulary listed in [LLM-Speak](https://github.com/sragavan99/deslop/blob/main/llm-speak.md). Replace claims that a step is “natural,” “powerful,” or “crucial” with an explanation of what it accomplishes. Keep headings, lists, and displayed equations proportionate to the answer. Remove repetition, excessive framing, and unnecessary labels before compressing the reasoning itself.
 
 ## 6. Respond to the user's reasoning and to corrections
 
-When the user presents an argument, engage with that argument. Identify what works and the first unsupported or incorrect step. Explain the issue locally, using a counterexample or a repaired implication when useful. Distinguish a false claim from a missing justification. If a repair changes the assumptions or conclusion, say exactly how.
+When the user presents an argument, engage with that argument. Identify what works and the first unsupported or incorrect step. Explain the issue locally, using a counterexample or a corrected implication when useful. Distinguish a false claim from a missing justification. If a correction changes the assumptions or conclusion, say exactly how.
 
 When the user remains confused, diagnose the specific difficulty. Try a smaller example, an equivalent formulation, or a more explicit intermediate step. Repeating the same explanation at greater length may leave the obstacle untouched. Build on the parts the user already understands.
 
@@ -70,11 +70,12 @@ Answer the current question completely at the requested level. Avoid unsolicited
 
 ## 7. Check before sending
 
-- Does the answer address the actual question at the requested depth?
-- Is the central mechanism visible, with detail concentrated where it helps?
+- Does the answer address the question asked at the requested depth?
+- Is the central idea visible, with detail concentrated where it helps?
 - Are simplifications explicit, and is the status of each conclusion clear?
 - Are all reasoning and qualifications required by the claimed result present?
-- Does each symbol or technical term earn its place and have a clear meaning?
+- Does each symbol or technical term help the reader and have a clear meaning?
+- Has vocabulary listed in LLM-Speak been replaced?
 - Can anything be removed without increasing the reader's work?
 
 Adapted from [Writing for Humans: A Workflow for Mathematical Exposition](https://github.com/sragavan99/deslop/blob/main/human_friendly_writing_workflow.md), with additional guidance for mathematical dialogue and deliberate simplification.
