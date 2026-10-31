@@ -4,16 +4,16 @@ AI-generated proofs can be hard to read even when they are correct. This workflo
 
 | Step | Where | Attach |
 |---|---|---|
-| 1. Digest | Working chat | `explainer.md` |
+| 1. Digest | Working chat | `explainer.md`, `llm-speak.md` |
 | 2. Plan | Same chat | `human_friendly_writing_workflow.md` |
 | 3. Write | Same chat | Nothing new |
 | 4. Verify | Fresh chat | `verifier.md` |
 
-Use [`explainer.md`](explainer.md) for the discussion, [`human_friendly_writing_workflow.md`](human_friendly_writing_workflow.md) for the manuscript, and [`verifier.md`](verifier.md) for the independent check. Replace the bracketed parts in the prompts below.
+Use [`explainer.md`](explainer.md) for the discussion, [`human_friendly_writing_workflow.md`](human_friendly_writing_workflow.md) for the manuscript, and [`verifier.md`](verifier.md) for the independent check. [`llm-speak.md`](llm-speak.md) lists vocabulary to avoid in the discussion and the manuscript. Replace the bracketed parts in the prompts below.
 
 ## 1. Digest
 
-Attach `explainer.md` and send:
+Attach `explainer.md` and `llm-speak.md` and send:
 
 > Can you review the writeup at [LINK TO WRITEUP]? This is incomprehensible to a human. Explain the high-level ideas to me. Throughout this interaction, adhere stringently to the principles in explainer.md.
 
@@ -45,15 +45,15 @@ Attach `verifier.md` and both writeups at exact recorded versions. State the
 audit purpose and full or component scope. The default full correctness check
 is an **independent audit**.
 
-Before sending, inspect the actual writeups, supporting material, prompts,
-ledgers, filenames and launch instructions. Withhold internal checks, previous
+Before sending, inspect the writeups, supporting material, prompts,
+records, filenames and instructions. Withhold internal checks, previous
 reviews, and direct or indirect disclosures of their favorable or unfavorable
 judgments or review reasoning. Remove pressure toward either acceptance or
 rejection. Preserve the mathematics, assumptions, attribution, limitations and
 open proof obligations. If these share a source with evaluative history,
 prepare an identified audit copy, retain the original and record the mapping;
 do not silently change the candidate or conceal a missing argument. Record
-the content check with the packet version; filenames or hashes alone are not
+the content check with the version sent for review; filenames or hashes alone are not
 a content check.
 
 > Independently audit [LINK AND EXACT VERSION OF THE REWRITE] in full for correctness subject to the attached verifier.md. Test the argument adversarially while remaining indifferent to the outcome. Compare it with [LINK AND EXACT VERSION OF THE ORIGINAL] for omitted claims or changes in assumptions and conclusions. Do not seek earlier judgments of these writeups.
@@ -63,22 +63,22 @@ the findings, exact version, scope and any observed prior-judgment exposure.
 Use the same completeness standard for an internal check and an external
 audit; the verifier distinguishes routine expansion from substantive repair.
 
-Bring the findings back to the writing chat for repairs. For the next review,
+Bring the findings back to the writing chat for corrections. For the next review,
 choose and declare the purpose:
 
 - **Independent audit:** withhold earlier judgments and review reasoning
   again. Freeze the complete independent report before any later comparison;
   an initial proof map is insufficient.
-- **Adjudication:** supply exact prior findings and manuscript versions to
+- **Adjudication:** give exact prior findings and manuscript versions to
   resolve specified objections or conflicting reviews.
-- **Delta audit:** supply the exact baseline, its review and the patch, and
+- **Delta audit:** give the exact baseline, its review and the patch, and
   identify inherited coverage and rechecked dependencies. Changes to a
-  load-bearing interface or proof layer require fresh end-to-end review.
+  essential interface or proof layer require fresh end-to-end review.
 
 Adjudication and delta audits are not blind full audits. Reconcile disputed
 inferences using the exact versions and supporting mathematics. A newer
 VERIFIED label alone does not resolve an earlier objection. Preserve both
-reviews and hold acceptance of affected claims until their load-bearing
+reviews and hold acceptance of affected claims until their essential
 objections are resolved. A substantive repair creates a revised candidate to
 audit; it does not retrospectively verify the original. If earlier judgments
 are encountered during an independent review, disclose what and when, retain
